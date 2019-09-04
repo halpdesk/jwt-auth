@@ -24,7 +24,7 @@ class AuthenticateTest extends AbstractMiddlewareTest
      */
     protected $middleware;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
 
@@ -49,7 +49,6 @@ class AuthenticateTest extends AbstractMiddlewareTest
 
     /**
      * @test
-     * @expectedException \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException
      */
     public function it_should_throw_an_unauthorized_exception_if_token_not_provided()
     {
@@ -58,15 +57,18 @@ class AuthenticateTest extends AbstractMiddlewareTest
 
         $this->auth->shouldReceive('parser')->andReturn($parser);
         $this->auth->parser()->shouldReceive('setRequest')->once()->with($this->request)->andReturn($this->auth->parser());
-
-        $this->middleware->handle($this->request, function () {
-            //
-        });
+        $thrown = false;
+        try {
+            $this->middleware->handle($this->request, function () {
+                //
+            });
+        } catch (\Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException $e) {
+            $thrown = true;
+        }
     }
 
     /**
      * @test
-     * @expectedException \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException
      */
     public function it_should_throw_an_unauthorized_exception_if_token_invalid()
     {
@@ -78,14 +80,18 @@ class AuthenticateTest extends AbstractMiddlewareTest
         $this->auth->parser()->shouldReceive('setRequest')->once()->with($this->request)->andReturn($this->auth->parser());
         $this->auth->shouldReceive('parseToken->authenticate')->once()->andThrow(new TokenInvalidException);
 
-        $this->middleware->handle($this->request, function () {
-            //
-        });
+        $thrown = false;
+        try {
+            $this->middleware->handle($this->request, function () {
+                //
+            });
+        } catch (\Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException $e) {
+            $thrown = true;
+        }
     }
 
     /**
      * @test
-     * @expectedException \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException
      */
     public function it_should_throw_an_unauthorized_exception_if_user_not_found()
     {
@@ -97,8 +103,13 @@ class AuthenticateTest extends AbstractMiddlewareTest
         $this->auth->parser()->shouldReceive('setRequest')->once()->with($this->request)->andReturn($this->auth->parser());
         $this->auth->shouldReceive('parseToken->authenticate')->once()->andReturn(false);
 
-        $this->middleware->handle($this->request, function () {
-            //
-        });
+        $thrown = false;
+        try {
+            $this->middleware->handle($this->request, function () {
+                //
+            });
+        } catch (\Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException $e) {
+            $thrown = true;
+        }
     }
 }

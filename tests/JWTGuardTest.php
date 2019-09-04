@@ -37,7 +37,7 @@ class JWTGuardTest extends AbstractTestCase
      */
     protected $guard;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
 
@@ -157,8 +157,6 @@ class JWTGuardTest extends AbstractTestCase
     /**
      * @test
      * @group laravel-5.2
-     * @expectedException \Tymon\JWTAuth\Exceptions\UserNotDefinedException
-     * @expectedExceptionMessage An error occurred
      */
     public function it_should_throw_an_exception_if_an_invalid_token_is_provided()
     {
@@ -169,14 +167,19 @@ class JWTGuardTest extends AbstractTestCase
         $this->provider->shouldReceive('retrieveById')->never();
 
         $this->assertFalse($this->guard->check()); // once
-        $this->guard->userOrFail(); // twice, throws the exception
+
+        $thrown = false;
+        try {
+            $this->guard->userOrFail(); // twice, throws the exception
+        } catch (\Tymon\JWTAuth\Exceptions\UserNotDefinedException $e) {
+            $thrown = true;
+        }
+        $this->assertTrue($thrown);
     }
 
     /**
      * @test
      * @group laravel-5.2
-     * @expectedException \Tymon\JWTAuth\Exceptions\UserNotDefinedException
-     * @expectedExceptionMessage An error occurred
      */
     public function it_should_throw_an_exception_if_no_token_is_provided()
     {
@@ -187,7 +190,14 @@ class JWTGuardTest extends AbstractTestCase
         $this->provider->shouldReceive('retrieveById')->never();
 
         $this->assertFalse($this->guard->check());
-        $this->guard->userOrFail(); // throws the exception
+
+        $thrown = false;
+        try {
+            $this->guard->userOrFail(); // throws the exception
+        } catch (\Tymon\JWTAuth\Exceptions\UserNotDefinedException $e) {
+            $thrown = true;
+        }
+        $this->assertTrue($thrown);
     }
 
     /**
@@ -329,8 +339,6 @@ class JWTGuardTest extends AbstractTestCase
     /**
      * @test
      * @group laravel-5.2
-     * @expectedException \Tymon\JWTAuth\Exceptions\JWTException
-     * @expectedExceptionMessage Token could not be parsed from the request.
      */
     public function it_should_throw_an_exception_if_there_is_no_token_present_when_required()
     {
@@ -338,7 +346,13 @@ class JWTGuardTest extends AbstractTestCase
         $this->jwt->shouldReceive('getToken')->once()->andReturn(false);
         $this->jwt->shouldReceive('refresh')->never();
 
-        $this->guard->refresh();
+        $thrown = false;
+        try {
+            $this->guard->refresh();
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            $thrown = true;
+        }
+        $this->assertTrue($thrown);
     }
 
     /**

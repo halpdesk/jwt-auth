@@ -22,7 +22,7 @@ class ClaimTest extends AbstractTestCase
      */
     protected $claim;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
 
@@ -31,12 +31,16 @@ class ClaimTest extends AbstractTestCase
 
     /**
      * @test
-     * @expectedException \Tymon\JWTAuth\Exceptions\InvalidClaimException
-     * @expectedExceptionMessage Invalid value provided for claim [exp]
      */
     public function it_should_throw_an_exception_when_passing_an_invalid_value()
     {
-        $this->claim->setValue('foo');
+        $thrown = false;
+        try {
+            $this->claim->setValue('foo');
+        } catch (\Tymon\JWTAuth\Exceptions\InvalidClaimException $e) {
+            $thrown = true;
+        }
+        $this->assertTrue($thrown);
     }
 
     /** @test */

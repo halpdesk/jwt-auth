@@ -36,7 +36,7 @@ class PayloadTest extends AbstractTestCase
      */
     protected $payload;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
 
@@ -73,22 +73,28 @@ class PayloadTest extends AbstractTestCase
 
     /**
      * @test
-     * @expectedException \Tymon\JWTAuth\Exceptions\PayloadException
-     * @expectedExceptionMessage The payload is immutable
      */
     public function it_should_throw_an_exception_when_trying_to_add_to_the_payload()
     {
-        $this->payload['foo'] = 'bar';
+        $thrown = false;
+        try {
+            $this->payload['foo'] = 'bar';
+        } catch (\Tymon\JWTAuth\Exceptions\PayloadException $e) {
+            $thrown = true;
+        }
     }
 
     /**
      * @test
-     * @expectedException \Tymon\JWTAuth\Exceptions\PayloadException
-     * @expectedExceptionMessage The payload is immutable
      */
     public function it_should_throw_an_exception_when_trying_to_remove_a_key_from_the_payload()
     {
-        unset($this->payload['foo']);
+        $thrown = false;
+        try {
+            unset($this->payload['foo']);
+        } catch (\Tymon\JWTAuth\Exceptions\PayloadException $e) {
+            $thrown = true;
+        }
     }
 
     /** @test */
@@ -109,7 +115,7 @@ class PayloadTest extends AbstractTestCase
     /** @test */
     public function it_should_get_properties_of_payload_via_get_method()
     {
-        $this->assertInternalType('array', $this->payload->get());
+        $this->assertIsArray($this->payload->get());
         $this->assertSame($this->payload->get('sub'), 1);
 
         $this->assertSame(
@@ -128,7 +134,7 @@ class PayloadTest extends AbstractTestCase
         $sub = $values[0];
         $jti = $values[1];
 
-        $this->assertInternalType('array', $values);
+        $this->assertIsArray($values);
         $this->assertSame($sub, 1);
         $this->assertSame($jti, 'foo');
     }
@@ -170,12 +176,15 @@ class PayloadTest extends AbstractTestCase
 
     /**
      * @test
-     * @expectedException \BadMethodCallException
-     * @expectedExceptionMessage The claim [getFoo] does not exist on the payload.
      */
     public function it_should_throw_an_exception_when_magically_getting_a_property_that_does_not_exist()
     {
-        $this->payload->getFoo();
+        $thrown = false;
+        try {
+            $this->payload->getFoo();
+        } catch (\BadMethodCallException $e) {
+            $thrown = true;
+        }
     }
 
     /** @test */

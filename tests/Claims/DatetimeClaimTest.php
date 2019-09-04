@@ -40,7 +40,7 @@ class DatetimeClaimTest extends AbstractTestCase
      */
     protected $claimsTimestamp;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
 
@@ -132,7 +132,8 @@ class DatetimeClaimTest extends AbstractTestCase
     /** @test */
     public function it_should_handle_datetinterval_claims()
     {
-        $testDateInterval = DateInterval::createFromDateString('PT1H');
+        // date_default_timezone_set("UTC");
+        $testDateInterval = DateInterval::createFromDateString('1 hour');
 
         $this->assertInstanceOf(DateInterval::class, $testDateInterval);
 

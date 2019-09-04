@@ -18,11 +18,15 @@ class NotBeforeTest extends AbstractTestCase
 {
     /**
      * @test
-     * @expectedException \Tymon\JWTAuth\Exceptions\InvalidClaimException
-     * @expectedExceptionMessage Invalid value provided for claim [nbf]
      */
     public function it_should_throw_an_exception_when_passing_an_invalid_value()
     {
-        new NotBefore('foo');
+        $thrown = false;
+        try {
+            new NotBefore('foo');
+        } catch (\Tymon\JWTAuth\Exceptions\InvalidClaimException $e) {
+            $thrown = true;
+        }
+        $this->assertTrue($thrown);
     }
 }

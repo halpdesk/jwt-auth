@@ -30,7 +30,7 @@ class NamshiTest extends AbstractTestCase
      */
     protected $provider;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
 
@@ -53,8 +53,6 @@ class NamshiTest extends AbstractTestCase
 
     /**
      * @test
-     * @expectedException \Tymon\JWTAuth\Exceptions\JWTException
-     * @expectedExceptionMessage Could not create token:
      */
     public function it_should_throw_an_invalid_exception_when_the_payload_could_not_be_encoded()
     {
@@ -63,7 +61,12 @@ class NamshiTest extends AbstractTestCase
         $this->jws->shouldReceive('setPayload')->once()->with($payload)->andReturn(Mockery::self());
         $this->jws->shouldReceive('sign')->andThrow(new Exception);
 
-        $this->getProvider('secret', 'HS256')->encode($payload);
+        $thrown = false;
+        try {
+            $this->getProvider('secret', 'HS256')->encode($payload);
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            $thrown = true;
+        }
     }
 
     /** @test */
@@ -80,8 +83,6 @@ class NamshiTest extends AbstractTestCase
 
     /**
      * @test
-     * @expectedException \Tymon\JWTAuth\Exceptions\TokenInvalidException
-     * @expectedExceptionMessage Token Signature could not be verified.
      */
     public function it_should_throw_a_token_invalid_exception_when_the_token_could_not_be_decoded_due_to_a_bad_signature()
     {
@@ -89,13 +90,16 @@ class NamshiTest extends AbstractTestCase
         $this->jws->shouldReceive('verify')->once()->with('secret', 'HS256')->andReturn(false);
         $this->jws->shouldReceive('getPayload')->never();
 
-        $this->getProvider('secret', 'HS256')->decode('foo.bar.baz');
+        $thrown = false;
+        try {
+            $this->getProvider('secret', 'HS256')->decode('foo.bar.baz');
+        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+            $thrown = true;
+        }
     }
 
     /**
      * @test
-     * @expectedException \Tymon\JWTAuth\Exceptions\TokenInvalidException
-     * @expectedExceptionMessage Could not decode token:
      */
     public function it_should_throw_a_token_invalid_exception_when_the_token_could_not_be_decoded()
     {
@@ -103,7 +107,12 @@ class NamshiTest extends AbstractTestCase
         $this->jws->shouldReceive('verify')->never();
         $this->jws->shouldReceive('getPayload')->never();
 
-        $this->getProvider('secret', 'HS256')->decode('foo.bar.baz');
+        $thrown = false;
+        try {
+            $this->getProvider('secret', 'HS256')->decode('foo.bar.baz');
+        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+            $thrown = true;
+        }
     }
 
     /** @test */
@@ -168,15 +177,18 @@ class NamshiTest extends AbstractTestCase
 
     /**
      * @test
-     * @expectedException \Tymon\JWTAuth\Exceptions\JWTException
-     * @expectedExceptionMessage The given algorithm could not be found
      */
     public function it_should_throw_a_exception_when_the_algorithm_passed_is_invalid()
     {
         $this->jws->shouldReceive('load')->once()->with('foo.bar.baz', false)->andReturn(Mockery::self());
         $this->jws->shouldReceive('verify')->with('secret', 'AlgorithmWrong')->andReturn(true);
 
-        $this->getProvider('secret', 'AlgorithmWrong')->decode('foo.bar.baz');
+        $thrown = false;
+        try {
+            $this->getProvider('secret', 'AlgorithmWrong')->decode('foo.bar.baz');
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            $thrown = true;
+        }
     }
 
     /**

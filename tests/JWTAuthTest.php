@@ -47,7 +47,7 @@ class JWTAuthTest extends AbstractTestCase
      */
     protected $jwtAuth;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->manager = Mockery::mock(Manager::class);
         $this->auth = Mockery::mock(Auth::class);
@@ -152,12 +152,16 @@ class JWTAuthTest extends AbstractTestCase
 
     /**
      * @test
-     * @expectedException \Tymon\JWTAuth\Exceptions\JWTException
-     * @expectedExceptionMessage A token is required
      */
     public function it_should_throw_an_exception_when_not_providing_a_token()
     {
-        $this->jwtAuth->toUser();
+        $thrown = false;
+        try {
+            $this->jwtAuth->toUser();
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            $thrown = true;
+        }
+        $this->assertTrue($thrown);
     }
 
     /** @test */
@@ -263,14 +267,18 @@ class JWTAuthTest extends AbstractTestCase
 
     /**
      * @test
-     * @expectedException \Tymon\JWTAuth\Exceptions\JWTException
-     * @expectedExceptionMessage The token could not be parsed from the request
      */
     public function it_should_throw_an_exception_when_token_not_present_in_request()
     {
         $this->parser->shouldReceive('parseToken')->andReturn(false);
 
-        $this->jwtAuth->parseToken();
+        $thrown = false;
+        try {
+            $this->jwtAuth->parseToken();
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            $thrown = true;
+        }
+        $this->assertTrue($thrown);
     }
 
     /** @test */

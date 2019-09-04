@@ -54,7 +54,7 @@ class ManagerTest extends AbstractTestCase
      */
     protected $validator;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
 
@@ -123,8 +123,6 @@ class ManagerTest extends AbstractTestCase
 
     /**
      * @test
-     * @expectedException \Tymon\JWTAuth\Exceptions\TokenBlacklistedException
-     * @expectedExceptionMessage The token has been blacklisted
      */
     public function it_should_throw_exception_when_token_is_blacklisted()
     {
@@ -150,7 +148,13 @@ class ManagerTest extends AbstractTestCase
 
         $this->blacklist->shouldReceive('has')->with($payload)->andReturn(true);
 
-        $this->manager->decode($token);
+        $thrown = false;
+        try {
+            $this->manager->decode($token);
+        } catch (\Tymon\JWTAuth\Exceptions\TokenBlacklistedException $e) {
+            $thrown = true;
+        }
+        $this->assertTrue($thrown);
     }
 
     /** @test */
@@ -249,14 +253,18 @@ class ManagerTest extends AbstractTestCase
 
     /**
      * @test
-     * @expectedException \Tymon\JWTAuth\Exceptions\JWTException
-     * @expectedExceptionMessage You must have the blacklist enabled to invalidate a token.
      */
     public function it_should_throw_an_exception_when_enable_blacklist_is_set_to_false()
     {
         $token = new Token('foo.bar.baz');
 
-        $this->manager->setBlacklistEnabled(false)->invalidate($token);
+        $thrown = false;
+        try {
+            $this->manager->setBlacklistEnabled(false)->invalidate($token);
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            $thrown = true;
+        }
+        $this->assertTrue($thrown);
     }
 
     /** @test */

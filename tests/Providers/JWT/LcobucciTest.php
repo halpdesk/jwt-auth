@@ -37,7 +37,7 @@ class LcobucciTest extends AbstractTestCase
      */
     protected $provider;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
 
@@ -62,8 +62,6 @@ class LcobucciTest extends AbstractTestCase
 
     /**
      * @test
-     * @expectedException \Tymon\JWTAuth\Exceptions\JWTException
-     * @expectedExceptionMessage Could not create token:
      */
     public function it_should_throw_an_invalid_exception_when_the_payload_could_not_be_encoded()
     {
@@ -73,7 +71,12 @@ class LcobucciTest extends AbstractTestCase
         $this->builder->shouldReceive('set')->times(count($payload));
         $this->builder->shouldReceive('sign')->once()->with(Mockery::any(), 'secret')->andThrow(new Exception);
 
-        $this->getProvider('secret', 'HS256')->encode($payload);
+        $thrown = false;
+        try {
+            $this->getProvider('secret', 'HS256')->encode($payload);
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            $thrown = true;
+        }
     }
 
     /** @test */
@@ -90,8 +93,6 @@ class LcobucciTest extends AbstractTestCase
 
     /**
      * @test
-     * @expectedException \Tymon\JWTAuth\Exceptions\TokenInvalidException
-     * @expectedExceptionMessage Token Signature could not be verified.
      */
     public function it_should_throw_a_token_invalid_exception_when_the_token_could_not_be_decoded_due_to_a_bad_signature()
     {
@@ -99,13 +100,16 @@ class LcobucciTest extends AbstractTestCase
         $this->parser->shouldReceive('verify')->once()->with(Mockery::any(), 'secret')->andReturn(false);
         $this->parser->shouldReceive('getClaims')->never();
 
-        $this->getProvider('secret', 'HS256')->decode('foo.bar.baz');
+        $thrown = false;
+        try {
+            $this->getProvider('secret', 'HS256')->decode('foo.bar.baz');
+        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+            $thrown = true;
+        }
     }
 
     /**
      * @test
-     * @expectedException \Tymon\JWTAuth\Exceptions\TokenInvalidException
-     * @expectedExceptionMessage Could not decode token:
      */
     public function it_should_throw_a_token_invalid_exception_when_the_token_could_not_be_decoded()
     {
@@ -113,7 +117,12 @@ class LcobucciTest extends AbstractTestCase
         $this->parser->shouldReceive('verify')->never();
         $this->parser->shouldReceive('getClaims')->never();
 
-        $this->getProvider('secret', 'HS256')->decode('foo.bar.baz');
+        $thrown = false;
+        try {
+            $this->getProvider('secret', 'HS256')->decode('foo.bar.baz');
+        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+            $thrown = true;
+        }
     }
 
     /** @test */
@@ -139,15 +148,18 @@ class LcobucciTest extends AbstractTestCase
 
     /**
      * @test
-     * @expectedException \Tymon\JWTAuth\Exceptions\JWTException
-     * @expectedExceptionMessage The given algorithm could not be found
      */
     public function it_should_throw_a_exception_when_the_algorithm_passed_is_invalid()
     {
         $this->parser->shouldReceive('parse')->never();
         $this->parser->shouldReceive('verify')->never();
 
-        $this->getProvider('secret', 'AlgorithmWrong')->decode('foo.bar.baz');
+        $thrown = false;
+        try {
+            $this->getProvider('secret', 'AlgorithmWrong')->decode('foo.bar.baz');
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            $thrown = true;
+        }
     }
 
     /**
